@@ -3,7 +3,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const logger = require('./logger');
-require('dotenv').config();
+
 
 const app = express();
 let isServerOn = false;

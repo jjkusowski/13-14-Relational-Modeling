@@ -19,6 +19,8 @@ const schoolSchema = mongoose.Schema({
   state : {
     type: String,
   },
-});
+  students: [{type: mongoose.Schema.Types.ObjectId, ref: 'student'}],
+},
+{ usePushEach: true});
 
 module.exports = mongoose.model('school', schoolSchema);
