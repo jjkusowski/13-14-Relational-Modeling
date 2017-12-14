@@ -178,6 +178,33 @@ describe('/api/schools', () => {
         });
     });
 
+    test('should respond with 409 status code if name is a duplicate', () => {
+      let schoolToPostOne = {
+        name: 'Michigan Tech University',
+        city: faker.lorem.words(1),
+        state: faker.lorem.words(1),
+      };
+      let schoolToPostTwo = {
+        name: faker.lorem.words(1),
+        city: faker.lorem.words(1),
+        state: faker.lorem.words(1),
+      };
+      return superagent.post(`${apiURL}`)
+        .send(schoolToPostOne)
+        .then( () => {
+          return superagent.post(`${apiURL}`)
+            .send(schoolToPostTwo);
+        })
+        .then( (response) => {
+          return superagent.put(`${apiURL}/${response.body._id}`)
+            .send({name: 'Michigan Tech University'});
+        })
+        .then(Promise.reject)
+        .catch(response => {
+          expect(response.status).toEqual(409);
+        });
+    });
+
 
   });
 
