@@ -12,6 +12,7 @@ let httpServer = null;
 mongoose.Promise = Promise;
 
 app.use(require('../route/school-router'));
+app.use(require('../route/student-router'));
 
 app.all('*', (request,response) => {
   logger.log('info','Returning a 404 from the catch-all route');

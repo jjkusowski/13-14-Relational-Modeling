@@ -36,7 +36,7 @@ studentMock.createMany = (howMany) => {
         .fill(0)
         .map(() => {
           return new Student({
-            tfirstName: faker.name.firstName(),
+            firstName: faker.name.firstName(),
             lastName: faker.name.lastName(),
             currentStudent: faker.random.boolean(),
             school: school._id,
