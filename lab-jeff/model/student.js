@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const School = require('./school');
 const httpErrors = require('http-errors');
 
-
 const studentSchema = mongoose.Schema({
   firstName: {
     type: String,
@@ -18,16 +17,13 @@ const studentSchema = mongoose.Schema({
     type: Boolean,
   },
   school: {
-    type : mongoose.Schema.Types.ObjectId,
-    required : true,
-    ref : 'school',
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'school',
   },
 });
-//-----------------------------------------------------
-// SETTING UP RELATIONSHIP MANAGEMENT
-//-----------------------------------------------------
+
 studentSchema.pre('save', function(done){
-  // I want to make sure that the school exists before saving a student
   return School.findById(this.school)
     .then(schoolFound => {
       if(!schoolFound)
@@ -37,10 +33,9 @@ studentSchema.pre('save', function(done){
       return schoolFound.save();
     })
     .then(() => done())
-    .catch(done);// vinicio - this will trigger an error
+    .catch(done);
 });
 
-// vinicio - document is the student I JUST removed
 studentSchema.post('remove', (document, done) => {
   return School.findById(document.school)
     .then(schoolFound => {
@@ -55,7 +50,5 @@ studentSchema.post('remove', (document, done) => {
     .then(() => done())
     .catch(done);
 });
-//-----------------------------------------------------
 
-// vinicio - internally, this becomes 'students'
 module.exports = mongoose.model('student', studentSchema);

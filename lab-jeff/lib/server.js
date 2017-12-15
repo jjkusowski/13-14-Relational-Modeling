@@ -4,7 +4,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const logger = require('./logger');
 
-
 const app = express();
 let isServerOn = false;
 let httpServer = null;

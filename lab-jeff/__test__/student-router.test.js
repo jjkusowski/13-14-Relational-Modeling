@@ -90,7 +90,6 @@ describe('/api/students', () => {
 
   describe('PUT /api/students/:id', () => {
     test('should update student and respond with 200 if there are no errors', () => {
-
       let studentToUpdate = null;
 
       return studentMock.create()
@@ -128,7 +127,6 @@ describe('/api/students', () => {
 
       return studentMock.create()
         .then(mock => {
-          //vinicio - no error checking for now
           tempMock = mock;
           return superagent.get(`${apiURL}/${mock.student._id}`);
         })
@@ -145,6 +143,7 @@ describe('/api/students', () => {
           expect(response.body.school.timestamp).toBeTruthy();
         });
     });
+
     test('should respond with 404 status code if there id is incorrect', () => {
       return superagent.get(`${apiURL}/Dewey`)
         .then(Promise.reject)

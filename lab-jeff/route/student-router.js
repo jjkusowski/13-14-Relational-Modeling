@@ -9,17 +9,22 @@ const httpErrors = require('http-errors');
 
 const studentRouter = module.exports = new Router();
 
-studentRouter.post('/api/students',jsonParser, (request,response,next) => {
+studentRouter.post('/api/students',jsonParser, (request, response, next) => {
+  logger.log('info', 'POST - processing a request');
   if(!request.body.firstName || !request.body.lastName) {
-    return next(httpErrors(400,'body and content are required'));
+    return next(httpErrors(400, 'body and content are required'));
   }
 
   return new Student(request.body).save()
-    .then(student => response.json(student))//vinicio-this sends a 200
+    .then(student => {
+      logger.log('info', 'POST - Returning a 200 status code');
+      response.json(student);
+    })
     .catch(error => next(error));
 });
 
-studentRouter.get('/api/students', (request,response,next) => {
+studentRouter.get('/api/students', (request, response, next) => {
+  logger.log('info', 'GET - processing a request');
   const PAGE_SIZE = 10;
 
   let {page = '0'} = request.query;
@@ -29,7 +34,6 @@ studentRouter.get('/api/students', (request,response,next) => {
     page = 0;
 
   page = page < 0 ? 0 : page;
-  // TODO : more validation
 
   let allStudents = null;
 
@@ -41,12 +45,10 @@ studentRouter.get('/api/students', (request,response,next) => {
       return Student.find({}).count();
     })
     .then(studentCount => {
-      // Vinicio - inside this then I have no access to 'students'
       let responseData = {
         count : studentCount,
         data : allStudents,
       };
-      // Next Page / Previous Page / Last Page
       let lastPage = Math.floor(studentCount / PAGE_SIZE);
 
       response.links({
@@ -54,44 +56,46 @@ studentRouter.get('/api/students', (request,response,next) => {
         prev : `http://localhost:${process.env.PORT}/api/students?page=${page < 1 ? 0 : page - 1}`,
         last : `http://localhost:${process.env.PORT}/api/students?page=${lastPage}`,
       });
+      logger.log('info', 'GET - Returning a 200 status code');
       response.json(responseData);
     });
 });
 
 studentRouter.get('/api/students/:id', (request, response, next) => {
+  logger.log('info', 'GET by id - processing a request');
   return Student.findById(request.params.id)
-    .populate('school')// vinicio - use this with care
-    .then(student => {      // wit great power comes great responsibility
+    .populate('school')
+    .then(student => {
       if(!student){
         throw httpErrors(404,'student not found');
       }
-      logger.log('info', 'GET - Returning a 200 status code');
+      logger.log('info', 'GET by id - Returning a 200 status code');
       return response.json(student);
     }).catch(next);
 });
 
-studentRouter.delete('/api/students/:id',(request,response,next) => {
+studentRouter.delete('/api/students/:id', (request, response, next) => {
+  logger.log('info', 'DELETE - processing a request');
   return Student.findByIdAndRemove(request.params.id)
     .then(student => {
       if(!student){
         throw httpErrors(404,'student not found');
       }
-      logger.log('info', 'GET - Returning a 204 status code');
+      logger.log('info', 'DELETE - Returning a 204 status code');
       return response.sendStatus(204);
     }).catch(next);
 });
 
-studentRouter.put('/api/students/:id',jsonParser,(request,response,next) => {
-  // vinicio - this configures mongo update behavior
+studentRouter.put('/api/students/:id',jsonParser, (request, response, next) => {
+  logger.log('info', 'PUT - processing a request');
   let options = {runValidators: true, new : true};
 
-  // vinicio -  additional validation before updating ?
-  return Student.findByIdAndUpdate(request.params.id,request.body,options)
+  return Student.findByIdAndUpdate(request.params.id, request.body, options)
     .then(student => {
       if(!student){
         throw httpErrors(404,'student not found');
       }
-      logger.log('info', 'GET - Returning a 200 status code');
+      logger.log('info', 'PUT - Returning a 200 status code');
       return response.json(student);
     }).catch(next);
 });

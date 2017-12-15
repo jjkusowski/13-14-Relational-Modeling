@@ -9,7 +9,7 @@ const httpErrors = require('http-errors');
 
 const schoolRouter = module.exports = new Router();
 
-schoolRouter.post('/api/schools', jsonParser, (request,response, next) => {
+schoolRouter.post('/api/schools', jsonParser, (request, response, next) => {
   logger.log('info', 'POST - processing a request');
 
   if(!request.body.name || !request.body.city) {
@@ -21,15 +21,15 @@ schoolRouter.post('/api/schools', jsonParser, (request,response, next) => {
     .catch(next);
 });
 
-schoolRouter.get('/api/schools/:id', (request,response, next) => {
-  logger.log('info', 'GET by id- processing a request');
+schoolRouter.get('/api/schools/:id', (request, response, next) => {
+  logger.log('info', 'GET by id - processing a request');
 
   return School.findById(request.params.id)
     .then(school => {
       if(!school){
         throw httpErrors(404, 'school not found');
       }
-      logger.log('info', 'GET by id- Returning a 200 status code');
+      logger.log('info', 'GET by id - Returning a 200 status code');
       return response.json(school);
     }).catch(next);
 });
@@ -58,7 +58,7 @@ schoolRouter.delete('/api/schools', (request, response, next) => {
   return response.sendStatus(400);
 });
 
-schoolRouter.put('/api/schools/:id', jsonParser ,(request,response,next) => {
+schoolRouter.put('/api/schools/:id', jsonParser, (request, response, next) => {
   logger.log('info', 'PUT - processing a request');
   let options = {runValidators: true, new : true};
 

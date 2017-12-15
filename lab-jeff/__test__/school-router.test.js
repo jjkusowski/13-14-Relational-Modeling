@@ -2,7 +2,7 @@
 
 require('./lib/setup');
 
-const faker = require('faker'); //jeff - remove?
+const faker = require('faker');
 const superagent = require('superagent');
 const server = require('../lib/server');
 const schoolMock = require('./lib/school-mock');
@@ -34,6 +34,7 @@ describe('/api/schools', () => {
           expect(response.body.state).toEqual(schoolToPost.state);
         });
     });
+    
     test('should respond with a 400 code if we send an incomplete school', () => {
       let schoolToPost = {
         name: 'foo',
@@ -60,7 +61,6 @@ describe('/api/schools', () => {
           expect(response.status).toEqual(409);
         });
     });
-
   });
 
   describe('GET /api/schools/:id', () => {
@@ -90,7 +90,6 @@ describe('/api/schools', () => {
           expect(response.status).toEqual(404);
         });
     });
-
   });
   describe('GET /api/schools', () => {
     test('Should return array of objects of all schools and status 200', () => {
@@ -130,7 +129,6 @@ describe('/api/schools', () => {
           expect(response.status).toEqual(404);
         });
     });
-
   });
 
   describe('PUT /api/schools', () => {
@@ -194,9 +192,5 @@ describe('/api/schools', () => {
           expect(response.status).toEqual(409);
         });
     });
-
-
   });
-
-
 });
