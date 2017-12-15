@@ -1,25 +1,18 @@
 'use strict';
 
+require('./lib/setup');
+
 const faker = require('faker');
 const superagent = require('superagent');
-const School = require('../model/school');
 const server = require('../lib/server');
+const schoolMock = require('./lib/school-mock');
 
 const apiURL = `http://localhost:${process.env.PORT}/api/schools`;
-
-const schoolMockCreate = () => {
-  return new School({
-    name: faker.lorem.words(1),
-    city: faker.lorem.words(1),
-    state: faker.lorem.words(1),
-  }).save();
-};
-
 
 describe('/api/schools', () => {
   beforeAll(server.start);
   afterAll(server.stop);
-  beforeEach(() => School.remove({}));
+  afterEach(schoolMock.remove);
 
 
   describe('POST /api/schools', () => {
@@ -41,9 +34,10 @@ describe('/api/schools', () => {
           expect(response.body.state).toEqual(schoolToPost.state);
         });
     });
+    
     test('should respond with a 400 code if we send an incomplete school', () => {
       let schoolToPost = {
-        name: faker.lorem.words(1),
+        name: 'foo',
       };
       return superagent.post(`${apiURL}`)
         .send(schoolToPost)
@@ -54,30 +48,26 @@ describe('/api/schools', () => {
     });
 
     test('should respond with 409 status code if name is a duplicate', () => {
-      let schoolToPost = {
-        name: faker.lorem.words(1),
-        city: faker.lorem.words(1),
-        state: faker.lorem.words(1),
-      };
-      return superagent.post(`${apiURL}`)
-        .send(schoolToPost)
-        .then( () => {
-          return superagent.post(`${apiURL}`)
-            .send(schoolToPost);
+      return schoolMock.create()
+        .then(school => {
+          return superagent.post(apiURL)
+            .send({
+              name: school.name,
+              city: 'foo',
+            });
         })
         .then(Promise.reject)
         .catch(response => {
           expect(response.status).toEqual(409);
         });
     });
-
   });
 
   describe('GET /api/schools/:id', () => {
     test('should respond with 200 status code if there is no error', () => {
       let schoolToTest = null;
 
-      return schoolMockCreate()
+      return schoolMock.create()
         .then(school => {
           schoolToTest = school;
           return superagent.get(`${apiURL}/${school._id}`);
@@ -95,17 +85,16 @@ describe('/api/schools', () => {
     });
     test('should respond with 404 status code if the id is incorrect', () => {
       return superagent.get(`${apiURL}/Dewey`)
-        // .then(Promise.reject)
+        .then(Promise.reject)
         .catch(response => {
           expect(response.status).toEqual(404);
         });
     });
-
   });
   describe('GET /api/schools', () => {
     test('Should return array of objects of all schools and status 200', () => {
 
-      return schoolMockCreate()
+      return schoolMock.create()
         .then( () => {
           return superagent.get(`${apiURL}`);
         })
@@ -118,7 +107,7 @@ describe('/api/schools', () => {
   describe('DELETE /api/schools/:id', () => {
     test('should respond with 204 status code if there is no error', () => {
 
-      return schoolMockCreate()
+      return schoolMock.create()
         .then(school => {
           return superagent.delete(`${apiURL}/${school._id}`);
         })
@@ -140,14 +129,13 @@ describe('/api/schools', () => {
           expect(response.status).toEqual(404);
         });
     });
-
   });
 
   describe('PUT /api/schools', () => {
     test('should update school and respond with 200 if there are no errors', () => {
       let schoolToUpdate = null;
 
-      return schoolMockCreate()
+      return schoolMock.create()
         .then(school => {
           schoolToUpdate = school;
           return superagent.put(`${apiURL}/${school._id}`)
@@ -204,9 +192,5 @@ describe('/api/schools', () => {
           expect(response.status).toEqual(409);
         });
     });
-
-
   });
-
-
 });
